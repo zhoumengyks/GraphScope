@@ -1,6 +1,6 @@
 {
   "name": "@graphscope/graphscope-jupyter",
-  "version": "0.4.2",
+  "version": "0.4.4",
   "description": "A GraphScope Jupyter Extension, including Graphin Widget, etc.",
   "keywords": [
     "jupyter",
@@ -52,7 +52,7 @@
     "watch:nbextension": "webpack --watch"
   },
   "dependencies": {
-    "@antv/graphin-graphscope": "^1.0.3",
+    "@antv/graphin-graphscope": "^1.0.4",
     "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3",
     "react": "^16.9.0",
     "react-dom": "^16.9.0"
