@@ -1,0 +1,19 @@
+[workspace]
+
+[package]
+name = "trylib_server"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = "0.4"
+pegasus_common = { path = "../common" }
+pegasus = { path = "../pegasus" }
+pegasus_server = { path = "../server" }
+structopt = "0.3"
+tokio = { version = "1.0", features = ["macros", "sync", "rt-multi-thread"] }
+tonic = "0.5"
+prost = "0.8"
+tokio-stream = "0.1.3"

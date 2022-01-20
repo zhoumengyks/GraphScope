@@ -14,8 +14,19 @@ pub struct JobDesc {
 }
 
 impl JobDesc {
-    pub fn set_input(&mut self, input_bytes: Vec<u8>) {
+    pub fn set_input(&mut self, input_bytes: Vec<u8>) -> &mut Self {
         self.input = input_bytes;
+        self
+    }
+
+    pub fn set_plan(&mut self, plan_bytes: Vec<u8>) -> &mut Self {
+        self.plan = plan_bytes;
+        self
+    }
+
+    pub fn set_resource(&mut self, plan_bytes: Vec<u8>) -> &mut Self {
+        self.plan = plan_bytes;
+        self
     }
 }
 
@@ -25,7 +36,7 @@ pub trait JobParser<I: Data, O: Send + Debug + 'static>: Send + Sync + 'static {
     ) -> Result<(), BuildJobError>;
 }
 
-struct DyLibParser;
+pub struct DyLibParser;
 
 impl JobParser<Vec<u8>, Vec<u8>> for DyLibParser {
     fn parse(
