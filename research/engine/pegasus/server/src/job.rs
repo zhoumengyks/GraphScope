@@ -24,8 +24,8 @@ impl JobDesc {
         self
     }
 
-    pub fn set_resource(&mut self, plan_bytes: Vec<u8>) -> &mut Self {
-        self.plan = plan_bytes;
+    pub fn set_resource(&mut self, resource_bytes: Vec<u8>) -> &mut Self {
+        self.resource = plan_bytes;
         self
     }
 }
@@ -43,10 +43,12 @@ impl JobParser<Vec<u8>, Vec<u8>> for DyLibParser {
         &self, job: &JobDesc, input: &mut Source<Vec<u8>>, output: ResultSink<Vec<u8>>,
     ) -> Result<(), BuildJobError> {
         let stream = input.input_from(Some(job.input.clone()))?;
-
+        let worker_index = pegasus::get_current_worker().index;
+        info!("worker = {}", worker_index);
         let resource = String::from_utf8(job.resource.clone()).expect("todo");
+        info!("try to load resource {} ;", resource);
         let lib = pegasus::resource::get_global_resource::<Library>(&resource).expect("todo");
-        let func: Symbol<unsafe fn(Stream<Vec<u8>>) -> Result<Stream<Vec<u8>>, BuildJobError>> =
+        let func: Symbol<unsafe extern "Rust" fn(Stream<Vec<u8>>) -> Result<Stream<Vec<u8>>, BuildJobError>> =
             unsafe { lib.get(&job.plan[..]).expect("todo") };
         unsafe { func(stream)? }.sink_into(output)
     }
