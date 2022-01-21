@@ -138,7 +138,7 @@ pub fn guard(worker_id: WorkerId) -> CurWorkerGuard {
 }
 
 #[inline]
-fn set_current_worker(worker_id: Option<WorkerId>) {
+pub fn set_current_worker(worker_id: Option<WorkerId>) {
     CURRENT_WORKER.with(|w| {
         let addr = w as *const Cell<Option<WorkerId>> as usize;
         println!("set addr = 0x{}", addr);
