@@ -25,7 +25,7 @@ impl JobDesc {
     }
 
     pub fn set_resource(&mut self, resource_bytes: Vec<u8>) -> &mut Self {
-        self.resource = plan_bytes;
+        self.resource = resource_bytes;
         self
     }
 }

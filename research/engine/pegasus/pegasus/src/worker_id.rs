@@ -119,6 +119,7 @@ pub struct CurWorkerGuard;
 
 impl CurWorkerGuard {
     pub fn new(id: WorkerId) -> Self {
+        info!("set worker id");
         set_current_worker(Some(id));
         CurWorkerGuard
     }
@@ -126,6 +127,7 @@ impl CurWorkerGuard {
 
 impl Drop for CurWorkerGuard {
     fn drop(&mut self) {
+        info!("drop worker id");
         set_current_worker(None);
     }
 }

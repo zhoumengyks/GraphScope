@@ -138,10 +138,10 @@ where
         }
         match unsafe { libloading::Library::new(&path) } {
             Ok(lib) => {
-                if pegasus::resource::add_global_resource(name, lib).is_some() {
+                info!("add library with name {}", name);
+                if let Some((name, _)) = pegasus::resource::add_global_resource(name, lib) {
                     return Err(Status::aborted(format!("resource {} already exists;", name)))
                 }
-                info!("add library with name {}", name);
                 Ok(Response::new(Empty {}))
             }
             Err(err) => {
