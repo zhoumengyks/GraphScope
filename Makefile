@@ -104,7 +104,7 @@ gae:
 			..
 	$(MAKE) -C $(GAE_BUILD_DIR) -j$(NUMPROC)
 
-ifeq (${ENABLE_JAVA_SDK}, ON)
+ifeq ($(ENABLE_JAVA_SDK), ON)
 	cd $(GAE_JDK_DIR) && \
 	mvn clean package -DskipTests;
 endif
@@ -130,18 +130,13 @@ gle:
 			-DTESTING=${BUILD_TEST} \
 			..
 	$(MAKE) -C $(GL_BUILD_DIR) -j$(NUMPROC)
-#	sudo make install
-# ifneq ($(INSTALL_PREFIX), /usr/local)
-# 	sudo ln -sf ${INSTALL_PREFIX}/lib/*so* /usr/local/lib && \
-# 	sudo ln -sf ${INSTALL_PREFIX}/lib/*dylib* /usr/local/lib
-# endif
 
 
 .PHONY: install
 # install: gle client gae gie coordinator
-intall: gae
+install: gie
 # install built GAE
-	$(MAKE) -C $(GAE_BUILD_DIR) install
+	# $(MAKE) -C $(GAE_BUILD_DIR) install
 	#TODO(Jingbo): sudo cp -r $(WORKING_DIR)/k8s/kube_ssh $(INSTALL_PREFIX)/bin/
 
 # ifneq ($(INSTALL_PREFIX), /usr/local)
@@ -160,11 +155,12 @@ intall: gae
 # 	fi
 # endif
 
-ifeq (${ENABLE_JAVA_SDK}, ON)
-	install -d ${GAE_JDK_DIR}/grape-runtime/target/native/libgrape-jni.* ${INSTALL_PREFIX}/lib
-	install -d ${GAE_JDK_DIR}/grape-runtime/target/grape-runtime-0.1-shaded.jar ${INSTALL_PREFIX}/lib
-	install -d ${GAE_JDK_DIR}/grape_jvm_opts ${INSTALL_PREFIX}/conf
-endif
+# ifeq (${ENABLE_JAVA_SDK}, ON)
+# 	install -d ${GAE_JDK_DIR}/grape-runtime/target/native/libgrape-jni.* ${INSTALL_PREFIX}/lib
+# 	install -d ${GAE_JDK_DIR}/grape-runtime/target/grape-runtime-0.1-shaded.jar ${INSTALL_PREFIX}/lib
+# 	install -d ${GAE_JDK_DIR}/grape_jvm_opts ${INSTALL_PREFIX}/conf
+# endif
+	tar -xf $(GIE_DIR)/assembly/target/graphscope.tar.gz --strip-components 1 -C $(INSTALL_PREFIX)
 
 # wheels
 .PHONY: graphscope-py3-package
