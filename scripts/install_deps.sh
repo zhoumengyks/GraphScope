@@ -3,6 +3,9 @@
 # A script to install dependencies of GraphScope.
 # TODO: check dependencies revise
 # TODO: install depedencies faster
+# TODO: install openjdk11-microsoft for M1/M2 chip;
+# TODO: upgrade libgrape-lite/v6d
+# TODO: install fastffi if install grape-jdk;
 
 set -e
 set -o pipefail
