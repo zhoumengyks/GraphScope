@@ -4,6 +4,8 @@ WORKING_DIR 		:= $(dir $(MKFILE_PATH))
 GAE_BUILD_DIR		:= $(WORKING_DIR)/analytical_engine/build
 GAE_JDK_DIR			:= $(WORKING_DIR)/analytical_engine/java
 GIE_DIR				:= $(WORKING_DIR)/interactive_engine
+GL_DIR				:= $(WORKING_DIR)/learning_engine/graph-learn
+GL_BUILD_DIR		:= $(WORKING_DIR)/learning_engine/graph-learn/build
 
 
 VERSION                     ?= 0.1.0
@@ -119,18 +121,20 @@ gie:
 
 .PHONY: gle
 gle:
-	cd ${WORKING_DIR} && \
-	git submodule update --init && \
-	cd $(WORKING_DIR)/learning_engine/graph-learn && \
-	git submodule update --init third_party/pybind11 && \
-	mkdir -p cmake-build && cd cmake-build && \
-	cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) -DWITH_VINEYARD=ON -DTESTING=${BUILD_TEST} .. && \
-	make -j`nproc` && \
-	sudo make install
-ifneq ($(INSTALL_PREFIX), /usr/local)
-	sudo ln -sf ${INSTALL_PREFIX}/lib/*so* /usr/local/lib && \
-	sudo ln -sf ${INSTALL_PREFIX}/lib/*dylib* /usr/local/lib
-endif
+	git submodule update --init $(GL_DIR)
+	cd $(GL_DIR) && git submodule update --init $(GL_DIR)/third_party/pybind11
+	mkdir $(GL_BUILD_DIR) || true
+	cd $(GL_BUILD_DIR) && \
+	cmake 	-DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
+			-DWITH_VINEYARD=ON \
+			-DTESTING=${BUILD_TEST} \
+			..
+	$(MAKE) -C $(GL_BUILD_DIR) -j$(NUMPROC)
+#	sudo make install
+# ifneq ($(INSTALL_PREFIX), /usr/local)
+# 	sudo ln -sf ${INSTALL_PREFIX}/lib/*so* /usr/local/lib && \
+# 	sudo ln -sf ${INSTALL_PREFIX}/lib/*dylib* /usr/local/lib
+# endif
 
 
 .PHONY: install
@@ -207,6 +211,7 @@ clean:
 	rm -fr $(GAE_BUILD_DIR) || true && \
 	rm -fr $(WORKING_DIR)/analytical_engine/proto/ || true && \
 	rm -fr $(WORKING_DIR)/learning_engine/graph-learn/cmake-build/ || true && \
+	rm -fr ${GL_BUILD_DIR} || true
 	rm -fr $(WORKING_DIR)/learning_engine/graph-learn/proto/*.h || true && \
 	rm -fr $(WORKING_DIR)/learning_engine/graph-learn/proto/*.cc || true && \
 	rm -fr $(WORKING_DIR)/interactive_engine/executor/target || true && \
