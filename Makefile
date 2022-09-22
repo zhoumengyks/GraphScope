@@ -33,8 +33,13 @@ endif
 NUMPROC 				:= $(echo "$(NUMPROC)/2"|bc)
 
 ifeq ($(NUMPROC),0)
-	NUMPROC = 1
-endif 
+	NUMPROC := 1
+endif
+
+#ifeq ($(CI), True)
+#	echo "xf"
+#	NUMPROC := 1
+#endif
 
 
 # .PHONY: all
@@ -106,18 +111,16 @@ gae:
 
 ifeq ($(ENABLE_JAVA_SDK), ON)
 	cd $(GAE_JDK_DIR) && \
-	mvn clean package -DskipTests;
+	mvn clean package -e -X -DskipTests;
 endif
 
 .PHONY: gie
 gie:
 	cd $(GIE_DIR) && \
-	mvn clean package -DskipTests -Drust.compile.mode=$(BUILD_TYPE) -P graphscope,graphscope-assembly
-	# install
-	# mkdir -p $(WORKING_DIR)/.install_prefix && \
-	# tar -xf $(WORKING_DIR)/interactive_engine/assembly/target/graphscope.tar.gz --strip-components 1 -C $(WORKING_DIR)/.install_prefix && \
-	# sudo cp -r $(WORKING_DIR)/.install_prefix/* $(INSTALL_PREFIX) && \
-	# rm -fr $(WORKING_DIR)/.install_prefix
+	mvn clean package 	-DskipTests \
+						-Drust.compile.mode=$(BUILD_TYPE) \ 
+						-P graphscope,graphscope-assembly
+
 
 .PHONY: gle
 gle:
@@ -136,31 +139,18 @@ gle:
 # install: gle client gae gie coordinator
 install: gie
 # install built GAE
-	# $(MAKE) -C $(GAE_BUILD_DIR) install
-	#TODO(Jingbo): sudo cp -r $(WORKING_DIR)/k8s/kube_ssh $(INSTALL_PREFIX)/bin/
-
-# ifneq ($(INSTALL_PREFIX), /usr/local)
-# 	sudo rm -fr /usr/local/include/graphscope && \
-# 	sudo ln -sf $(INSTALL_PREFIX)/bin/* /usr/local/bin/ && \
-# 	sudo ln -sfn $(INSTALL_PREFIX)/include/graphscope /usr/local/include/graphscope && \
-# 	sudo ln -sf ${INSTALL_PREFIX}/lib/*so* /usr/local/lib && \
-# 	sudo ln -sf ${INSTALL_PREFIX}/lib/*dylib* /usr/local/lib && \
-# 	if [ -d "${INSTALL_PREFIX}/lib64/cmake/graphscope-analytical" ]; then \
-# 		sudo rm -fr /usr/local/lib64/cmake/graphscope-analytical; \
-# 		sudo ln -sfn ${INSTALL_PREFIX}/lib64/cmake/graphscope-analytical /usr/local/lib64/cmake/graphscope-analytical; \
-# 		sudo mkdir -p ${INSTALL_PREFIX}/lib/cmake; \
-# 		sudo cp -r ${INSTALL_PREFIX}/lib64/cmake/* ${INSTALL_PREFIX}/lib/cmake/; \
-# 	else \
-# 		sudo ln -sfn ${INSTALL_PREFIX}/lib/cmake/graphscope-analytical /usr/local/lib/cmake/graphscope-analytical; \
-# 	fi
-# endif
-
-# ifeq (${ENABLE_JAVA_SDK}, ON)
-# 	install -d ${GAE_JDK_DIR}/grape-runtime/target/native/libgrape-jni.* ${INSTALL_PREFIX}/lib
-# 	install -d ${GAE_JDK_DIR}/grape-runtime/target/grape-runtime-0.1-shaded.jar ${INSTALL_PREFIX}/lib
-# 	install -d ${GAE_JDK_DIR}/grape_jvm_opts ${INSTALL_PREFIX}/conf
-# endif
+	# $(MAKE) -C $(GAE_BUILD_DIR) install	
+ifeq (${ENABLE_JAVA_SDK}, ON)
+	install -d ${GAE_JDK_DIR}/grape-runtime/target/native/libgrape-jni.* ${INSTALL_PREFIX}/lib
+	install -d ${GAE_JDK_DIR}/grape-runtime/target/grape-runtime-0.1-shaded.jar ${INSTALL_PREFIX}/lib
+	install -d ${GAE_JDK_DIR}/grape_jvm_opts ${INSTALL_PREFIX}/conf
+endif
+# install built GIE
 	tar -xf $(GIE_DIR)/assembly/target/graphscope.tar.gz --strip-components 1 -C $(INSTALL_PREFIX)
+# install built GLE
+	make -C $(GL_BUILD_DIR) install
+# initialize utilities	
+	install -d $(WORKING_DIR)/k8s/kube_ssh $(INSTALL_PREFIX)/bin
 
 # wheels
 .PHONY: graphscope-py3-package
